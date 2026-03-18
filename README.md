@@ -34,9 +34,9 @@ If Dropbox isn't available but the `gh` CLI is installed and authenticated, the 
 
 1. Creates a secret gist containing your CLAUDE.md (or connects to an existing one)
 2. Stores the gist ID in `~/.claude/.claude-md-gist-id`
-3. Lets you push local changes to the gist or pull the gist to overwrite local
+3. Pulls from the gist to sync, pushing first if local has changes
 
-On subsequent machines, run the skill and provide the same gist ID to pull your shared instructions.
+Run `/sync-claude-md` whenever you want to sync. On subsequent machines, provide the same gist ID to pull your shared instructions.
 
 ### Safety
 
@@ -48,6 +48,7 @@ If no `~/.claude/CLAUDE.md` exists on any machine, the skill creates a starter t
 
 ## Platform support
 
-- macOS: Checks `~/Dropbox` and `~/Library/CloudStorage/Dropbox`
-- Windows: Checks `%USERPROFILE%\Dropbox`, uses `mklink` instead of `ln -s`
-- Linux: Checks `~/Dropbox`
+- **macOS/Linux**: Symlink created automatically by the skill. No manual steps.
+- **Windows (Dropbox)**: Git bash can't create symlinks. The skill prints a PowerShell command for you to run once in a regular terminal. Requires Developer Mode (Settings -> System -> For developers) or Administrator privileges.
+- **Windows (Gist)**: Works fully automatically, no symlinks needed.
+- Dropbox paths checked: `~/Dropbox`, `~/Library/CloudStorage/Dropbox` (macOS), `%USERPROFILE%\Dropbox` (Windows)
