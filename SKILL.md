@@ -13,6 +13,7 @@ Set up syncing of `~/.claude/CLAUDE.md` across machines so all machines share th
 
 2. **If Dropbox is available:**
    - Create `~/Dropbox/Claude/CLAUDE.md` if it doesn't exist (copy from `~/.claude/CLAUDE.md` if that exists, otherwise create a starter template).
+   - **Before replacing the local file**, diff `~/.claude/CLAUDE.md` against `~/Dropbox/Claude/CLAUDE.md`. If the local file has content not present in the shared file, show the diff to the user and merge the unique local content into the shared file. Do not silently discard instructions that only exist on this machine.
    - Replace `~/.claude/CLAUDE.md` with a symlink to `~/Dropbox/Claude/CLAUDE.md`.
    - On Windows use `mklink` instead of `ln -s`.
    - Print: "Syncing via Dropbox. Edit ~/Dropbox/Claude/CLAUDE.md and it syncs automatically."
@@ -21,9 +22,10 @@ Set up syncing of `~/.claude/CLAUDE.md` across machines so all machines share th
    - Check if `gh` CLI is installed and authenticated (`gh auth status`).
    - **First-time setup (no gist exists yet):**
      - Check if `~/.claude/.claude-md-gist-id` exists. If yes, use that gist ID.
-     - Otherwise ask the user if they have an existing gist ID to pull from. If yes, pull it: `curl -sL https://gist.githubusercontent.com/{user}/{id}/raw/CLAUDE.md -o ~/.claude/CLAUDE.md` and save the ID.
+     - Otherwise ask the user if they have an existing gist ID to pull from. If yes, pull it and save the ID.
      - If no existing gist, create one: `gh gist create --filename "CLAUDE.md" --desc "Shared global CLAUDE.md" ~/.claude/CLAUDE.md` and save the gist ID.
    - **Store the gist ID** in `~/.claude/.claude-md-gist-id` for future use.
+   - **Before overwriting the local file**, diff `~/.claude/CLAUDE.md` against the gist content. If the local file has content not present in the gist, show the diff to the user and offer to merge the unique local content into the gist before pulling. Do not silently discard instructions that only exist on this machine.
    - **Pull:** `curl -sL https://gist.githubusercontent.com/{user}/{gist_id}/raw/CLAUDE.md -o ~/.claude/CLAUDE.md`
    - **Push:** `gh gist edit {gist_id} -f CLAUDE.md ~/.claude/CLAUDE.md`
    - Ask the user whether they want to **pull** (overwrite local with gist) or **push** (update gist from local). Default to pull on new machines, push if local file is newer or user just edited it.
