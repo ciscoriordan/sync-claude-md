@@ -18,23 +18,33 @@ In any Claude Code conversation, run:
 
 ## What it does
 
-The skill detects available sync methods and sets up the best option automatically:
+On every run, the skill **first detects which sync mode is already in use** by inspecting the `~/.claude/CLAUDE.md` symlink target. It never silently switches modes — that would orphan your existing setup. If no setup is in place, it asks which of three modes you want.
 
-### Dropbox (preferred)
+### Private GitHub repo (recommended for `gh`-authenticated users)
 
-If Dropbox is installed, the skill:
+1. Creates a private repo (`gh repo create --private`) and clones it locally (default: `~/Documents/claude-md`).
+2. Copies `~/.claude/CLAUDE.md` into the clone, commits, pushes.
+3. Replaces `~/.claude/CLAUDE.md` with a symlink into the clone.
+4. On subsequent runs: `git pull --rebase --autostash`, then commit + push if there are local edits.
 
-1. Copies `~/.claude/CLAUDE.md` to `~/Dropbox/Claude/CLAUDE.md`
-2. Replaces the local file with a symlink to the Dropbox copy
-3. Changes sync automatically across all linked machines
+Setup on a second machine:
+```bash
+git clone <url> <local-path>
+ln -s <local-path>/CLAUDE.md ~/.claude/CLAUDE.md
+```
+Then `/sync-claude-md` handles pull/push from there.
 
-### GitHub Gist (fallback)
+### Dropbox
 
-If Dropbox isn't available but the `gh` CLI is installed and authenticated, the skill:
+1. Copies `~/.claude/CLAUDE.md` to `~/Dropbox/Claude/CLAUDE.md`.
+2. Replaces the local file with a symlink to the Dropbox copy.
+3. Changes sync automatically across all linked machines.
 
-1. Creates a secret gist containing your CLAUDE.md (or connects to an existing one)
-2. Stores the gist ID in `~/.claude/.claude-md-gist-id`
-3. Pulls from the gist to sync, pushing first if local has changes
+### GitHub Gist
+
+1. Creates a secret gist containing your CLAUDE.md (or connects to an existing one).
+2. Stores the gist ID in `~/.claude/.claude-md-gist-id`.
+3. Pulls from the gist to sync, pushing first if local has changes.
 
 Run `/sync-claude-md` whenever you want to sync. On subsequent machines, provide the same gist ID to pull your shared instructions.
 
